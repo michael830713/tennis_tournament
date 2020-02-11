@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import 'package:tennis_tournament/favorites_page.dart';
+import 'package:tennis_tournament/constants.dart';
+
+import 'main_tournament_page.dart';
 
 void main() => runApp(MyApp());
+Logger logger = Logger();
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: Constants.mainTitle),
     );
   }
 }
@@ -26,39 +32,64 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  Widget mainFragment = MainTournamentPage();
+  String title;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  Drawer _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            child: Text('Drawer Header'),
+            decoration: BoxDecoration(color: Colors.green),
+          ),
+          ListTile(
+            title: Text(Constants.mainTitle),
+            onTap: () {
+              setState(() {
+                title = Constants.mainTitle;
+                mainFragment = MainTournamentPage();
+              });
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: Text(Constants.favoritesPageTitle),
+            onTap: () {
+              setState(() {
+                title = Constants.favoritesPageTitle;
+                mainFragment = FavoritesPage();
+              });
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    title = widget.title;
+    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: _buildDrawer(context),
       appBar: AppBar(
-        title: Text(widget.title),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () => logger.d('add is presses'),
+          )
+        ],
+        title: Text(title),
+        centerTitle: true,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      body: mainFragment,
     );
   }
 }
